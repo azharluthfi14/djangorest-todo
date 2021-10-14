@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third party
+    'rest_framework',
+    'drf_spectacular',
+
+    # App
+    'todo_api',
 ]
 
 MIDDLEWARE = [
@@ -49,12 +57,55 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Disable the Browsable HTML API
+DEFAULT_RENDERER_CLASSES = (
+    'rest_framework.renderers.JSONRenderer',
+)
+
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+
+REST_FRAMEWORK = {
+    # Disable the Browsable HTML API UI when in production (DEBUG=False)
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
+
+    # Pagination allows you to control how many objects per page are returned
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+
+    # The default permission policy may be set globally, using the DEFAULT_PERMISSION_CLASSES setting
+    # To be explained in detail later in the guide
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    # 'rest_framework.permissions.AllowAny',
+    # 'rest_framework.permissions.IsAuthenticated',
+    # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    # 'rest_framework.permissions.DjangoModelPermissions',
+    # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    # 'rest_framework.permissions.DjangoObjectPermissions',
+    # 'rest_framework.permissions.TokenHasReadWriteScope',
+    # ],
+
+    # A list or tuple of authentication classes, that determines the default set of authenticators used when accessing the request.user or request.auth properties.
+    # The default authentication schemes may be set globally, using the DEFAULT_AUTHENTICATION_CLASSES setting
+    # To be explained in detail later in the guide
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,6 +169,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
